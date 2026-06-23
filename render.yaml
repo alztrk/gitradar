@@ -13,5 +13,7 @@ services:
         value: https://gitradar-api.onrender.com
       - key: CORS_ORIGIN
         value: https://alztrk.github.io
+      - key: FRONTEND_URL
+        value: https://alztrk.github.io/gitradar
       - key: SESSION_SECRET
         generateValue: true

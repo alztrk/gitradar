@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 4000;
 const CLIENT_ID = process.env.GH_CLIENT_ID || 'YOUR_GITHUB_CLIENT_ID';
 const CLIENT_SECRET = process.env.GH_CLIENT_SECRET || 'YOUR_GITHUB_CLIENT_SECRET';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', credentials: true }));
@@ -85,7 +86,7 @@ app.get('/auth/github/callback', async (req, res) => {
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     db.prepare('INSERT INTO sessions (session_token, github_id, expires_at) VALUES (?, ?, ?)').run(sessionToken, userData.id, expires);
 
-    res.redirect(`${BASE_URL}?token=${sessionToken}`);
+    res.redirect(`${FRONTEND_URL}?token=${sessionToken}`);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
