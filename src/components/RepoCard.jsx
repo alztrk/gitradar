@@ -1,8 +1,9 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Star, GitFork, ArrowUpRight, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export function RepoCard({ repo, isBookmarked, onToggleBookmark }) {
   const { id, name, owner, description, stars, forks, language, languageColor, velocity_score } = repo;
@@ -60,6 +61,26 @@ export function RepoCard({ repo, isBookmarked, onToggleBookmark }) {
   };
 
   const health = calculateQuickHealth();
+
+  const { user, authFetch } = useAuth();
+  const [voteCount, setVoteCount] = useState(0);
+  const [userVote, setUserVote] = useState(0);
+  const repoId = String(id);
+
+  useEffect(() => {
+    authFetch(`/api/votes/${repoId}`).then(r => r.json()).then(d => setVoteCount(d.net || 0)).catch(() => {});
+    if (user) {
+      authFetch(`/api/votes/${repoId}/user`).then(r => r.json()).then(d => setUserVote(d.vote_type || 0)).catch(() => {});
+    }
+  }, [repoId, user]);
+
+  const vote = async (type) => {
+    if (!user) return;
+    const newType = userVote === type ? 0 : type;
+    await authFetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_id: repoId, vote_type: newType }) });
+    setUserVote(newType);
+    setVoteCount(prev => prev + (newType === 0 ? (userVote === 1 ? -1 : userVote === -1 ? 1 : 0) : newType === 1 ? 1 : -1));
+  };
 
   return (
     <Card className="rounded-xl border-[var(--border-color)] hover:border-[var(--hover-border)] bg-[var(--card-bg)] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative">
@@ -133,6 +154,19 @@ export function RepoCard({ repo, isBookmarked, onToggleBookmark }) {
             <p className="mt-3 line-clamp-2 text-sm text-[var(--meta-text)] leading-normal">
               {description || 'No description provided.'}
             </p>
+
+            <div className="flex items-center gap-1 mt-2">
+              <button onClick={() => vote(1)} className={`text-xs px-2 py-0.5 rounded border transition-colors ${userVote === 1 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-600' : 'border-[var(--border-color)] text-[var(--meta-text)] hover:border-emerald-500'}`}>
+                ▲
+              </button>
+              <span className={`text-xs font-bold min-w-[20px] text-center ${voteCount > 0 ? 'text-emerald-500' : voteCount < 0 ? 'text-rose-500' : 'text-[var(--meta-text)]'}`}>
+                {voteCount}
+              </span>
+              <button onClick={() => vote(-1)} className={`text-xs px-2 py-0.5 rounded border transition-colors ${userVote === -1 ? 'bg-rose-500/20 border-rose-500 text-rose-600' : 'border-[var(--border-color)] text-[var(--meta-text)] hover:border-rose-500'}`}>
+                ▼
+              </button>
+              {!user && <span className="text-[10px] text-[var(--meta-text)] ml-1">Login to vote</span>}
+            </div>
           </div>
 
           <div className="flex items-center justify-between border-t border-[var(--border-color)] pt-3 text-xs text-[var(--meta-text)]">

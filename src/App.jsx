@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useI18n } from './i18n/index.jsx';
+import { useAuth } from './context/AuthContext.jsx';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Hero } from './components/Hero';
 import { TrendsView } from './components/TrendsView';
@@ -24,6 +25,7 @@ function Dashboard() {
 
 function App() {
   const { t, locale, setLocale } = useI18n();
+  const { user, login, logout } = useAuth();
   // Dark/Light theme toggles
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('gitradar.theme');
@@ -146,6 +148,19 @@ function App() {
                 <TerminalSquare className="size-4" />
                 {t('nav.apiDocs')}
               </Link>
+
+              {/* Auth: Login/Logout */}
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
+                  <span className="text-xs font-medium text-[var(--meta-text)]">{user.username}</span>
+                  <button onClick={logout} className="text-[10px] text-[var(--meta-text)] hover:text-[var(--text-color)] underline underline-offset-2">(logout)</button>
+                </div>
+              ) : (
+                <button onClick={login} className="text-xs font-semibold text-[var(--meta-text)] hover:text-[var(--text-color)] underline underline-offset-2 transition-colors">
+                  Login with GitHub
+                </button>
+              )}
 
               {/* Language Switcher */}
               <div className="relative">
