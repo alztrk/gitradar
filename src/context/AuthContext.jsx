@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API = import.meta.env.VITE_API_URL || 'https://gitradar-b4gr.onrender.com';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
