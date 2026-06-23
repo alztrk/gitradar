@@ -15,8 +15,9 @@ const CLIENT_SECRET = process.env.GH_CLIENT_SECRET || 'YOUR_GITHUB_CLIENT_SECRET
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const ALLOWED_ORIGINS = ['http://localhost:5173', 'http://localhost:4173', 'https://alztrk.github.io'];
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: (origin, cb) => cb(null, ALLOWED_ORIGINS.includes(origin) || !origin), credentials: true }));
 app.use(express.json());
 
 // Database
