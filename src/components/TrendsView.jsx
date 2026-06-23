@@ -5,9 +5,11 @@ import { Card, CardContent } from './ui/card';
 import { Loader2, RefreshCw, AlertCircle, Search, SlidersHorizontal, ChevronDown, Check, ChevronLeft, ChevronRight, Download, Upload, BarChart3, Trophy, TrendingUp, Flame, Star, GitFork } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '../i18n/index.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export function TrendsView() {
   const { t } = useI18n();
+  const { apiUrl } = useAuth();
 
   const LANGUAGE_OPTIONS = [
     { label: t('languages.all'), value: '' },
@@ -119,7 +121,7 @@ export function TrendsView() {
         d.setDate(d.getDate() - period.days);
         q = `created:>${d.toISOString().split('T')[0]} stars:>=10`;
       }
-      const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=12&page=1`;
+      const url = `${apiUrl}/api/trends?time=${days}&sort=stars&lang=${langQuery || ''}&stars=0`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('rate-limited');
       const data = await res.json();
