@@ -1,29 +1,22 @@
 # GitRadar
 
-GitRadar, GitHub üzerinde hızla popülerlik kazanan (trending) projeleri ve yazılım teknolojilerini gerçek zamanlı olarak izlemenizi sağlayan hafif bir geliştirici kontrol panelidir (developer dashboard).
+GitHub trend radar — monitor, filter and discover repositories in real-time.
 
-## Özellikler
+🌐 **Live:** https://alztrk.github.io/gitradar
 
-- **Trend Radarı:** Son 7 veya 30 gün içinde oluşturulan ve en çok yıldız (star) alan popüler depoları listeler.
-- **Dil Filtreleme:** Sadece ilgilendiğiniz programlama dillerindeki (TypeScript, Rust, Python, Go vb.) gelişmeleri takip edin.
-- **Canlı GitHub API Entegrasyonu:** Projeler statik veriler yerine doğrudan güncel GitHub arama verilerinden çekilir.
-- **Modern Arayüz:** Minimalist, temiz ve mobil uyumlu premium arayüz.
+## Features
 
-## Kurulum ve Çalıştırma
+- Real-time GitHub trending repos
+- Multi-language filtering
+- Health score analysis
+- Repository comparison
+- Dark/light theme
+- TR/EN language support
 
-Projeyi yerel makinenizde çalıştırmak için aşağıdaki adımları izleyin:
+## Usage
 
-1. **Bağımlılıkları Yükleyin:**
-   ```bash
-   npm install
-   ```
-
-2. **Geliştirici Sunucusunu Başlatın (Dev Server):**
-   ```bash
-   npm run dev
-   ```
-
-3. **Üretim (Production) Sürümü Alın:**
-   ```bash
-   npm run build
-   ```
+```bash
+npm install
+npm run dev      # Frontend
+npm run server   # Backend API
+```
