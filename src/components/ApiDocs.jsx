@@ -3,9 +3,11 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Play, Copy, Check, Terminal, Loader2 } from 'lucide-react';
 import { useI18n } from '../i18n/index.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export function ApiDocs() {
   const { t } = useI18n();
+  const { apiUrl } = useAuth();
   const [copied, setCopied] = useState(false);
   const [apiResult, setApiResult] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
@@ -17,7 +19,7 @@ export function ApiDocs() {
   const [testStars, setTestStars] = useState('');
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`http://localhost:4000/api/trends?lang=${testLang}&time=${testTime}&sort=${testSort}${testStars ? `&stars=${testStars}` : ''}`);
+    navigator.clipboard.writeText(`${apiUrl}/api/trends?lang=${testLang}&time=${testTime}&sort=${testSort}${testStars ? `&stars=${testStars}` : ''}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -32,7 +34,7 @@ export function ApiDocs() {
       if (testSort) queryParams.set('sort', testSort);
       if (testStars) queryParams.set('stars', testStars);
 
-      const response = await fetch(`http://localhost:4000/api/trends?${queryParams.toString()}`);
+      const response = await fetch(`${apiUrl}/api/trends?${queryParams.toString()}`);
       if (!response.ok) {
         throw new Error(t('api.serverError'));
       }
@@ -133,7 +135,7 @@ export function ApiDocs() {
 
           <div className="pt-2 border-t border-[var(--border-color)] flex justify-between items-center gap-2 flex-wrap">
             <code className="text-xs text-[var(--meta-text)] break-all select-all font-mono">
-              GET http://localhost:4000/api/trends?lang={testLang}&time={testTime}&sort={testSort}{testStars ? `&stars=${testStars}` : ''}
+              GET {apiUrl}/api/trends?lang={testLang}&time={testTime}&sort={testSort}{testStars ? `&stars=${testStars}` : ''}
             </code>
             <div className="flex gap-2 w-full sm:w-auto">
               <button 
@@ -211,6 +213,59 @@ export function ApiDocs() {
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Vote API Documentation */}
+      <div className="border-t border-[var(--border-color)] pt-8 space-y-4">
+        <h2 className="text-lg font-bold text-[var(--text-color)]">{t('api.voteTitle')}</h2>
+        <p className="text-xs text-[var(--meta-text)]">{t('api.voteDesc')}</p>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge variant="subtle" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900 uppercase font-bold text-[10px]">POST</Badge>
+            <code className="text-sm font-bold text-[var(--text-color)]">/api/vote</code>
+          </div>
+          <div className="border border-[var(--border-color)] rounded-xl overflow-hidden bg-[var(--card-bg)] text-xs">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[var(--badge-bg)] border-b border-[var(--border-color)] text-[10px] font-bold text-[var(--meta-text)] uppercase">
+                  <th className="p-3">{t('api.paramCol')}</th>
+                  <th className="p-3">{t('api.typeCol')}</th>
+                  <th className="p-3">{t('api.descCol')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border-color)]">
+                <tr>
+                  <td className="p-3 font-semibold text-[var(--text-color)]">repo_id</td>
+                  <td className="p-3 text-[var(--meta-text)]">string</td>
+                  <td className="p-3 text-[var(--meta-text)]">{t('api.voteRepoIdDesc')}</td>
+                </tr>
+                <tr>
+                  <td className="p-3 font-semibold text-[var(--text-color)]">vote_type</td>
+                  <td className="p-3 text-[var(--meta-text)]">number</td>
+                  <td className="p-3 text-[var(--meta-text)]">{t('api.voteTypeDesc')}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge variant="subtle" className="bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 border-blue-200 dark:border-blue-900 uppercase font-bold text-[10px]">GET</Badge>
+            <code className="text-sm font-bold text-[var(--text-color)]">/api/votes/:repoId</code>
+          </div>
+          <p className="text-xs text-[var(--meta-text)]">{t('api.votesDesc')}</p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge variant="subtle" className="bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 border-blue-200 dark:border-blue-900 uppercase font-bold text-[10px]">GET</Badge>
+            <code className="text-sm font-bold text-[var(--text-color)]">/api/votes/:repoId/user</code>
+          </div>
+          <p className="text-xs text-[var(--meta-text)]">{t('api.voteUserDesc')}</p>
+          <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{t('api.voteAuthDesc')}</p>
         </div>
       </div>
     </div>
