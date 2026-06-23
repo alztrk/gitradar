@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -584,6 +585,32 @@ export function RepoDetail() {
     };
   };
 
+  const { user, authFetch } = useAuth();
+  const [voteCount, setVoteCount] = useState(0);
+  const [userVote, setUserVote] = useState(0);
+  const repoOwner = useParams().owner;
+  const repoName = useParams().name;
+
+  useEffect(() => {
+    if (!repoData) return;
+    const repoId = String(repoData.id);
+    authFetch(`/api/votes/${repoId}`).then(r => r.json()).then(d => setVoteCount(d.net || 0)).catch(() => {});
+    if (user) {
+      authFetch(`/api/votes/${repoId}/user`).then(r => r.json()).then(d => setUserVote(d.vote_type || 0)).catch(() => {});
+    }
+  }, [repoData, user]);
+
+  const vote = async (type) => {
+    if (!user || !repoData) return;
+    const repoId = String(repoData.id);
+    const newType = userVote === type ? 0 : type;
+    const res = await authFetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_id: repoId, vote_type: newType }) });
+    if (res.ok) {
+      setUserVote(newType);
+      setVoteCount(prev => prev + (newType === 0 ? (userVote === 1 ? -1 : userVote === -1 ? 1 : 0) : newType === 1 ? 1 : -1));
+    }
+  };
+
   const chartData = generateChartData();
   const health = calculateHealthScore();
 
@@ -656,6 +683,20 @@ export function RepoDetail() {
                     </span>
                   </h3>
                   <p className="text-xs text-[var(--meta-text)] mt-0.5">{t('repoDetail.healthCalcDesc')}</p>
+                </div>
+
+                {/* Vote Buttons */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <button onClick={() => vote(1)} className={`px-3 py-1.5 rounded-lg border text-sm font-bold transition-colors ${userVote === 1 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-600' : 'border-[var(--border-color)] text-[var(--meta-text)] hover:border-emerald-500 hover:text-emerald-500'}`}>
+                    ▲ {userVote === 1 ? 'Voted' : 'Upvote'}
+                  </button>
+                  <span className={`text-lg font-black min-w-[32px] text-center ${voteCount > 0 ? 'text-emerald-500' : voteCount < 0 ? 'text-rose-500' : 'text-[var(--meta-text)]'}`}>
+                    {voteCount}
+                  </span>
+                  <button onClick={() => vote(-1)} className={`px-3 py-1.5 rounded-lg border text-sm font-bold transition-colors ${userVote === -1 ? 'bg-rose-500/20 border-rose-500 text-rose-600' : 'border-[var(--border-color)] text-[var(--meta-text)] hover:border-rose-500 hover:text-rose-500'}`}>
+                    ▼ {userVote === -1 ? 'Voted' : 'Downvote'}
+                  </button>
+                  {!user && <span className="text-[10px] text-[var(--meta-text)] italic">{t('repoDetail.loginToVote')}</span>}
                 </div>
               </div>
 

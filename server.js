@@ -49,8 +49,10 @@ db.exec(`
 `);
 
 function auth(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No auth token' });
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'No auth token' });
+  const token = header.slice(7);
+  if (!token || token === 'null' || token === 'undefined') return res.status(401).json({ error: 'No auth token' });
   const session = db.prepare(`SELECT * FROM sessions WHERE session_token = ? AND expires_at > datetime('now')`).get(token);
   if (!session) return res.status(401).json({ error: 'Invalid or expired token' });
   req.github_id = session.github_id;

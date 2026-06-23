@@ -37,7 +37,9 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const authFetch = useCallback((url, opts = {}) => {
-    return fetch(`${API}${url}`, { ...opts, headers: { ...opts.headers, 'Authorization': `Bearer ${token}` } });
+    const headers = { ...opts.headers };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return fetch(`${API}${url}`, { ...opts, headers });
   }, [token]);
 
   return (
