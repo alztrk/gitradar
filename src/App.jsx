@@ -99,7 +99,7 @@ function App() {
 
   if (isEmbed) {
     return (
-      <BrowserRouter>
+      <BrowserRouter basename="/gitradar">
         <Routes>
           <Route path="/embed/:owner/:name" element={<EmbedChart />} />
         </Routes>
@@ -108,7 +108,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/gitradar">
       <main className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] selection:bg-[var(--text-color)] selection:text-[var(--bg-color)] transition-colors duration-200">
         <div className="mx-auto max-w-5xl px-6 pb-16 pt-10 lg:px-8 space-y-12">
           
@@ -116,7 +116,7 @@ function App() {
           <div className="pb-4 border-b border-[var(--border-color)] flex items-center justify-between">
             <Link to="/" className="inline-flex items-center gap-2">
               <img 
-                src="/logo.jpg" 
+                src="/gitradar/logo.jpg" 
                 alt="GitRadar Logo" 
                 className="size-8 rounded-lg object-cover border border-[var(--border-color)]"
               />
