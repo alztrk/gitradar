@@ -74,12 +74,29 @@ export function RepoCard({ repo, isBookmarked, onToggleBookmark }) {
     }
   }, [repoId, user]);
 
+  const [voting, setVoting] = useState(false);
+
   const vote = async (type) => {
-    if (!user) return;
-    const newType = userVote === type ? 0 : type;
-    await authFetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_id: repoId, vote_type: newType }) });
+    if (!user || voting) return;
+    setVoting(true);
+    const prevVote = userVote;
+    const newType = prevVote === type ? 0 : type;
+    let netChange = 0;
+    if (newType === 0) netChange = prevVote === 1 ? -1 : 1;
+    else if (prevVote === 0) netChange = type === 1 ? 1 : -1;
+    else netChange = type === 1 ? 2 : -2;
+
     setUserVote(newType);
-    setVoteCount(prev => prev + (newType === 0 ? (userVote === 1 ? -1 : userVote === -1 ? 1 : 0) : newType === 1 ? 1 : -1));
+    setVoteCount(p => p + netChange);
+
+    try {
+      const res = await authFetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_id: repoId, vote_type: newType }) });
+      if (!res.ok) throw new Error();
+    } catch {
+      setUserVote(prevVote);
+      setVoteCount(p => p - netChange);
+    }
+    setVoting(false);
   };
 
   return (

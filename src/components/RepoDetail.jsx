@@ -600,15 +600,30 @@ export function RepoDetail() {
     }
   }, [repoData, user]);
 
+  const [voting, setVoting] = useState(false);
+
   const vote = async (type) => {
-    if (!user || !repoData) return;
+    if (!user || !repoData || voting) return;
+    setVoting(true);
     const repoId = String(repoData.id);
-    const newType = userVote === type ? 0 : type;
-    const res = await authFetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_id: repoId, vote_type: newType }) });
-    if (res.ok) {
-      setUserVote(newType);
-      setVoteCount(prev => prev + (newType === 0 ? (userVote === 1 ? -1 : userVote === -1 ? 1 : 0) : newType === 1 ? 1 : -1));
+    const prevVote = userVote;
+    const newType = prevVote === type ? 0 : type;
+    let netChange = 0;
+    if (newType === 0) netChange = prevVote === 1 ? -1 : 1;
+    else if (prevVote === 0) netChange = type === 1 ? 1 : -1;
+    else netChange = type === 1 ? 2 : -2;
+
+    setUserVote(newType);
+    setVoteCount(p => p + netChange);
+
+    try {
+      const res = await authFetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_id: repoId, vote_type: newType }) });
+      if (!res.ok) throw new Error();
+    } catch {
+      setUserVote(prevVote);
+      setVoteCount(p => p - netChange);
     }
+    setVoting(false);
   };
 
   const chartData = generateChartData();
